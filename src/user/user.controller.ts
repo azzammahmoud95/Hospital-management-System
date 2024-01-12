@@ -3,6 +3,7 @@ import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common'
 import { UserService } from './user.service';
 import { User as PrismaUser } from '@prisma/client';
 import { Role } from '@prisma/client';
+
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
