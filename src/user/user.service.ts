@@ -98,13 +98,19 @@
     
       if (isPasswordValid) {
         // Generate and return JWT token here
-        const secretKey = this.configservice.get<string>('SECRETKEY')
-        const token = await this.jwtService.signAsync({ sub: existingUser.id, name: existingUser.name }, {secret:secretKey});
-        return { message: 'Login successful', token };
+        const secretKey = this.configservice.get<string>('SECRETKEY');
+    
+        // Omit the password from the user object
+        const userWithoutPassword = { ...existingUser, password: undefined };
+    
+        // Sign the JWT token with the entire user object in the payload
+        const token = await this.jwtService.signAsync({ user: userWithoutPassword }, { secret: secretKey });
+    
+        // Return the user object without the password in the response
+        return { message: 'Login successful', user: userWithoutPassword, token };
       } else {
         return { message: 'Invalid Email or Password' };
       }
-      
     }
     // private async generateJwtToken(userId: number, name: string) {
     //   try {
