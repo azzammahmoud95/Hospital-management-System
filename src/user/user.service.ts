@@ -69,6 +69,16 @@ export class UserService {
   
     return updatedUserData;
   }
+  async loginUser(email:string,password:string){
+    const existingUser  = await prisma.user.findUnique({where: {email}});
+ if(!existingUser){
+  return {message: "User Not Found"}
+ }
+ const isPasswordValid = await bcrypt.compare(password,existingUser.password)
+
+    return isPasswordValid ? {message: "Login successfull"} : { message: "Invalid Email or Password" }
+
+  }
   async deleteUser(id: number): Promise<PrismaUser | any> {
     await prisma.user.delete({ where: { id } });
     return  { message: `User with ID ${id} has been deleted.` };
