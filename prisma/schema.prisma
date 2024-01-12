@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
+  PATIENT
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  password  String
+  role      Role
+  patient   Patient?
+  doctor    Doctor?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Patient {
+  id           Int             @id @default(autoincrement())
+  userId       Int             @unique
+  user         User            @relation(fields: [userId], references: [id])
+  doctors      PatientDoctor[]
+  appointments Appointment[]
+}
+
+model Doctor {
+  id           Int             @id @default(autoincrement())
+  appointments Appointment[]
+  patients     PatientDoctor[]
+  userId       Int             @unique
+  user         User            @relation(fields: [userId], references: [id])
+  departmentId Int             @unique
+  department   Department      @relation(fields: [departmentId], references: [id])
+}
+
+model Department {
+  id     Int      @id @default(autoincrement())
+  doctor Doctor[]
+}
+
+model PatientDoctor {
+  id        Int      @id @default(autoincrement())
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  patientId Int
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  doctorId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([patientId, doctorId])
+}
+
+model Appointment {
+  id        Int      @id @default(autoincrement())
+  dateTime  DateTime
+  doctorId  Int
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  patientId Int      @unique
+  patient   Patient  @relation(fields: [patientId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
