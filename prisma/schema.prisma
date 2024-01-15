@@ -44,8 +44,8 @@ model Doctor {
   patients     PatientDoctor[]
   userId       Int             @unique
   user         User            @relation(fields: [userId], references: [id])
-  departmentId Int             @unique
-  department   Department      @relation(fields: [departmentId], references: [id])
+  departmentId Int?             @unique
+  department   Department?      @relation(fields: [departmentId], references: [id])
 }
 
 model Department {

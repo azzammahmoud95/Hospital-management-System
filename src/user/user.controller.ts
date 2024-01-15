@@ -1,9 +1,9 @@
 // src/user/user.controller.ts
-import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as PrismaUser } from '@prisma/client';
 import { Role } from '@prisma/client';
-
+import { RolesGuard } from 'src/guards/roles.guard';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -14,6 +14,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @UseGuards(RolesGuard)
   async getUserById(@Param('id') id: string): Promise<PrismaUser | any> {
     return this.userService.getUserById(Number(id));
   }
