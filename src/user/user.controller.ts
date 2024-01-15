@@ -3,7 +3,10 @@ import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nes
 import { UserService } from './user.service';
 import { User as PrismaUser } from '@prisma/client';
 import { Role } from '@prisma/client';
-import { RolesGuard } from 'src/guards/roles.guard';
+// import { RolesGuard } from 'src/guards/roles.guard';
+import { SetMetadata } from '@nestjs/common';
+import { RolesGuard } from './roles.guard';
+
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -13,6 +16,7 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
+  @SetMetadata('roles', ['ADMIN'])
   @Get(':id')
   @UseGuards(RolesGuard)
   async getUserById(@Param('id') id: string): Promise<PrismaUser | any> {

@@ -1,11 +1,12 @@
 // roles.guard.ts
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector, private readonly configservice: ConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
     const roles = this.reflector.get<string[]>('roles', context.getHandler());
@@ -15,18 +16,21 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractToken(request.headers.authorization);
-
+// console.log("firsttoken",token)
     if (!token) {
+      console.log("hi1")
       throw new UnauthorizedException('JWT token not provided');
     }
 
     const decodedToken = this.verifyToken(token);
-
-    if (!decodedToken || !decodedToken.role) {
-      return false; // No role information in the JWT, access denied
+    // console.log('decoded-token',decodedToken)
+    if (decodedToken.user.role !== 'ADMIN') {
+      console.log('hi2')
+      throw new UnauthorizedException('You do not have permission to access this resource');
     }
+console.log('hisssssssssss');
 
-    return roles.includes(decodedToken.role); // Check if user's role is included in the allowed roles
+    return true; // Access granted only if the user has the "ADMIN" role
   }
 
   private extractToken(authorizationHeader: string): string | null {
@@ -37,11 +41,18 @@ export class RolesGuard implements CanActivate {
     return authorizationHeader.split(' ')[1];
   }
 
-  private verifyToken(token: string): { role: string } | null {
+  private verifyToken(token: string): { role: string } | null | any {
     try {
-      return jwt.verify(token, 'your-secret-key') as { role: string };
+      console.log("token", token);
+      const thereturn = jwt.verify(token, this.configservice.get<string>('SECRETKEY'));
+      console.log("thereturn", thereturn);
+
+      return thereturn;
     } catch (error) {
+      console.error("Error verifying token:", error);
       return null;
     }
   }
+  
+    
 }
