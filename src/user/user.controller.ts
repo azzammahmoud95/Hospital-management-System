@@ -1,5 +1,14 @@
 // src/user/user.controller.ts
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User as PrismaUser } from '@prisma/client';
 import { Role } from '@prisma/client';
@@ -23,20 +32,41 @@ export class UserController {
     return this.userService.getUserById(Number(id));
   }
 
+  @SetMetadata('roles', ['ADMIN'])
   @Post()
-  async createUser(@Body() user: { name: string; email: string; password: string; role: Role }): Promise<PrismaUser> {
+  @UseGuards(RolesGuard)
+  async createUser(
+    @Body() user: { name: string; email: string; password: string; role: Role },
+  ): Promise<PrismaUser> {
     return this.userService.createUser(user);
   }
   @Post('login')
-  async loginUser(@Body() credentials: { email: string; password: string }): Promise<any> {
-    const {email ,password} = credentials;
+  async loginUser(
+    @Body() credentials: { email: string; password: string },
+  ): Promise<any> {
+    const { email, password } = credentials;
 
-    return this.userService.loginUser(email,password);
+    return this.userService.loginUser(email, password);
+  }
 
-      
+  @SetMetadata('roles', ['ADMIN'])
+  @Post('assign')
+  @UseGuards(RolesGuard)
+  async assignPatientDoctor(@Body() data: { patientId: number; doctorId: number }): Promise<any> {
+    const result = await this.userService.assignPatientDoctor(data);
+    return { message: 'Patient and doctor assigned successfully', result };
   }
   @Put(':id')
-  async updateUser(@Param('id') id: string, @Body() updatedUser: { name?: string; email?: string; password?: string; role?: Role }): Promise<Omit<PrismaUser,'password'>> {
+  async updateUser(
+    @Param('id') id: string,
+    @Body()
+    updatedUser: {
+      name?: string;
+      email?: string;
+      password?: string;
+      role?: Role;
+    },
+  ): Promise<Omit<PrismaUser, 'password'>> {
     return this.userService.updateUser(Number(id), updatedUser);
   }
 

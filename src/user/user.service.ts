@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable ,NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PrismaClient, User as PrismaUser, Role } from '@prisma/client';
+import { PatientDoctor, PrismaClient, User as PrismaUser, Role } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { NotFoundError } from 'rxjs';
 const prisma = new PrismaClient();
 @Injectable()
 export class UserService {
@@ -148,6 +149,29 @@ export class UserService {
       return { message: 'Invalid Email or Password' };
     }
   }
+
+  async assignPatientDoctor(data: { patientId: number; doctorId: number }): Promise<PatientDoctor> {
+    const { patientId, doctorId } = data;
+
+    const patient = await prisma.patient.findUnique({ where: { userId: patientId } });
+    const doctor = await prisma.doctor.findUnique({ where: { userId: doctorId } });
+
+    if (!patient) {
+        throw new NotFoundException('Patient not found');
+    }
+
+    if (!doctor) {
+        throw new NotFoundException('Doctor not found');
+    }
+
+    return prisma.patientDoctor.create({
+        data: {
+            patient: { connect: { id: patient.id } },
+            doctor: { connect: { id: doctor.id } },
+        },
+    });
+}
+
 
   async deleteUser(id: number): Promise<PrismaUser | any> {
     await prisma.user.delete({ where: { id } });
