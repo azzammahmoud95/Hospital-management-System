@@ -77,7 +77,7 @@ model Appointment {
   dateTime  DateTime
   doctorId  Int
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
-  patientId Int      @unique
+  patientId Int      
   patient   Patient  @relation(fields: [patientId], references: [id])
   status    Status   @default(PENDING)
   createdAt DateTime @default(now())

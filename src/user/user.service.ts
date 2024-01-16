@@ -1,7 +1,7 @@
-import { Injectable ,NotFoundException } from '@nestjs/common';
+import { Injectable ,NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PatientDoctor, PrismaClient, User as PrismaUser, Role } from '@prisma/client';
+import { Appointment, PatientDoctor, PrismaClient, User as PrismaUser, Role } from '@prisma/client';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -138,9 +138,24 @@ export class UserService {
       // Omit the password from the user object
       const userWithoutPassword = { ...existingUser, password: undefined };
 
+// Define the payload with the user object
+const payload: any = { user: userWithoutPassword };
+
+if (existingUser.role === 'PATIENT') {
+  const patient = await prisma.patient.findUnique({ where: { userId: existingUser.id } });
+  if (patient) {
+    payload.patientId = patient.id;
+  }
+} else if (existingUser.role === 'DOCTOR') {
+  const doctor = await prisma.doctor.findUnique({ where: { userId: existingUser.id } });
+  if (doctor) {
+    payload.doctorId = doctor.id;
+  }
+}
+
       // Sign the JWT token with the entire user object in the payload
       const token = await this.jwtService.signAsync(
-        { user: userWithoutPassword },
+        payload,
         { secret: secretKey },
       );
 
@@ -210,4 +225,14 @@ export class UserService {
 // Assuming you named the relation "doctors"
     return doctors
   }
+
+
+
+
 }
+
+
+
+
+
+

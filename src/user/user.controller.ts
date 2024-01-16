@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User as PrismaUser } from '@prisma/client';
+import { Appointment, User as PrismaUser } from '@prisma/client';
 import { Role } from '@prisma/client';
 // import { RolesGuard } from 'src/guards/roles.guard';
 import { SetMetadata } from '@nestjs/common';
-import { RolesGuard } from './roles.guard';
+import { RolesGuard } from '../guards/roles.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('user')
@@ -26,7 +26,7 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
-  @SetMetadata('roles', ['DOCTOR','ADMIN','PATIENT'])
+  @SetMetadata('roles', ['ADMIN',])
   @Get(':id')
   @UseGuards(RolesGuard)
   async getUserById(@Param('id') id: string): Promise<PrismaUser | any> {
@@ -81,4 +81,9 @@ export class UserController {
     const doctors = await this.userService.getDoctorsOfPatient(Number(patientId));
     return { doctors };
   }
+
+  // @SetMetadata('roles', ['PATIENT'])
+  
+  // @SetMetadata('roles', ['DOCTOR'])
+  
 }
