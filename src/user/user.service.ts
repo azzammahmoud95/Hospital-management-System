@@ -154,8 +154,8 @@ export class UserService {
   async assignPatientDoctor(data: { patientId: number; doctorId: number }): Promise<PatientDoctor> {
     const { patientId, doctorId } = data;
 
-    const patient = await prisma.patient.findUnique({ where: { userId: patientId } });
-    const doctor = await prisma.doctor.findUnique({ where: { userId: doctorId } });
+    const patient = await prisma.patient.findUnique({ where: { id: patientId } });
+    const doctor = await prisma.doctor.findUnique({ where: { id: doctorId } });
 
     if (!patient) {
         throw new NotFoundException('Patient not found');
@@ -174,8 +174,40 @@ export class UserService {
 }
 
 
+
   async deleteUser(id: number): Promise<PrismaUser | any> {
     await prisma.user.delete({ where: { id } });
     return { message: `User with ID ${id} has been deleted.` };
+  }
+
+
+  async getDoctorsOfPatient(patiendId: number){
+    const patient  = await prisma.patient.findUnique({where: { id: patiendId}});
+
+    if(!patient){
+      throw new NotFoundException('Patient not found');
+    }
+
+    // Use Prisma's relation navigation to get doctors for the patient
+    const doctors = await prisma.patient.findUnique({where:{id:patiendId}}).doctors({
+      include: {
+        doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
+      },
+    });
+// Assuming you named the relation "doctors"
+    return doctors
   }
 }

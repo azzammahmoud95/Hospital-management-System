@@ -75,4 +75,10 @@ export class UserController {
   async deleteUser(@Param('id') id: string): Promise<PrismaUser> {
     return this.userService.deleteUser(Number(id));
   }
+
+  @Get('patient-doctors/:patientId')
+  async getDoctorsForPatient(@Param('patientId') patientId: string): Promise<any> {
+    const doctors = await this.userService.getDoctorsOfPatient(Number(patientId));
+    return { doctors };
+  }
 }

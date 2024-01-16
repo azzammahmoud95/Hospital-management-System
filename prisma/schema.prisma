@@ -16,6 +16,13 @@ enum Role {
   PATIENT
 }
 
+enum Status {
+  PENDING
+  APPROVE
+  REJECT
+  DONE
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -33,8 +40,8 @@ model User {
 model Patient {
   id           Int             @id @default(autoincrement())
   userId       Int             @unique
-  user         User            @relation(fields: [userId], references: [id],onDelete: Cascade)
-  doctors      PatientDoctor[] 
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctors      PatientDoctor[]
   appointments Appointment[]
 }
 
@@ -43,9 +50,9 @@ model Doctor {
   appointments Appointment[]
   patients     PatientDoctor[]
   userId       Int             @unique
-  user         User            @relation(fields: [userId], references: [id],onDelete: Cascade)
-  departmentId Int?             @unique
-  department   Department?      @relation(fields: [departmentId], references: [id])
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departmentId Int?            @unique
+  department   Department?     @relation(fields: [departmentId], references: [id])
 }
 
 model Department {
@@ -72,6 +79,7 @@ model Appointment {
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
   patientId Int      @unique
   patient   Patient  @relation(fields: [patientId], references: [id])
+  status    Status   @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
