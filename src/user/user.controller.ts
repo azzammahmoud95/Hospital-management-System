@@ -26,7 +26,7 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
-  @SetMetadata('roles', ['ADMIN'])
+  @SetMetadata('roles', ['DOCTOR','ADMIN','PATIENT'])
   @Get(':id')
   @UseGuards(RolesGuard)
   async getUserById(@Param('id') id: string): Promise<PrismaUser | any> {
@@ -50,7 +50,7 @@ export class UserController {
     return this.userService.loginUser(email, password);
   }
 
-  @SetMetadata('roles', ['ADMIN'])
+  // @SetMetadata('roles', ['ADMIN'])
   @Post('assign')
   @UseGuards(RolesGuard)
   async assignPatientDoctor(@Body() data: { patientId: number; doctorId: number }): Promise<any> {
