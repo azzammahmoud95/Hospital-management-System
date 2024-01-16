@@ -15,6 +15,7 @@ import { Role } from '@prisma/client';
 // import { RolesGuard } from 'src/guards/roles.guard';
 import { SetMetadata } from '@nestjs/common';
 import { RolesGuard } from './roles.guard';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -36,7 +37,7 @@ export class UserController {
   @Post()
   @UseGuards(RolesGuard)
   async createUser(
-    @Body() user: { name: string; email: string; password: string; role: Role },
+    @Body() user: CreateUserDto,
   ): Promise<PrismaUser> {
     return this.userService.createUser(user);
   }

@@ -44,12 +44,15 @@ export class UserService {
     });
   }
 
-  async createUser(user: {
-    name: string;
-    email: string;
-    password: string;
-    role: Role;
-  }): Promise<PrismaUser | any> {
+  async createUser(
+    user: CreateUserDto
+  //   {
+  //   name: string;
+  //   email: string;
+  //   password: string;
+  //   role: Role;
+  // }
+  ): Promise<PrismaUser | any> {
     const existingUser = await prisma.user.findUnique({
       where: {
         email: user.email,
@@ -66,11 +69,9 @@ export class UserService {
 
     // Omit the password from the data passed to prisma.user.create
     const userDataWithoutPassword = { ...user, password: hashedPassword };
-
+    user.password = hashedPassword
     // Create the user without returning the password
-    const createdUser = await prisma.user.create({
-      data: userDataWithoutPassword,
-    });
+    const createdUser = await prisma.user.create({data: user});
     if (createdUser.role === 'PATIENT') {
       await prisma.patient.create({
         data: {

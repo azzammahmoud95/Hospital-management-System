@@ -33,8 +33,8 @@ model User {
 model Patient {
   id           Int             @id @default(autoincrement())
   userId       Int             @unique
-  user         User            @relation(fields: [userId], references: [id])
-  doctors      PatientDoctor[]
+  user         User            @relation(fields: [userId], references: [id],onDelete: Cascade)
+  doctors      PatientDoctor[] 
   appointments Appointment[]
 }
 
@@ -43,7 +43,7 @@ model Doctor {
   appointments Appointment[]
   patients     PatientDoctor[]
   userId       Int             @unique
-  user         User            @relation(fields: [userId], references: [id])
+  user         User            @relation(fields: [userId], references: [id],onDelete: Cascade)
   departmentId Int?             @unique
   department   Department?      @relation(fields: [departmentId], references: [id])
 }
