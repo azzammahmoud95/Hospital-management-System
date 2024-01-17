@@ -108,7 +108,7 @@ await prisma.appointment.update({ where: { id }, data:updatedStatus })
     const decodedToken = this.jwtService.decode(token,);
     // console.log(decodedToken)
     if (!decodedToken || !decodedToken.doctorId) {
-      throw new Error('Invalid or missing doctor information in the token.');
+      throw new UnauthorizedException('Invalid or missing doctor information in the token.');
     }
 
     const doctorId = decodedToken.doctorId;
@@ -118,8 +118,18 @@ await prisma.appointment.update({ where: { id }, data:updatedStatus })
         doctorId: doctorId,
       },
       include: {
-        // Include other related entities if needed
+        doctor: {
+          // include: {
+          //   user: true, // Include all fields from the user
+          // },
+        },
+        patient: {
+          // include: {
+          //   user: true, // Include all fields from the user
+          // },
+        },
       },
     });
   }
 }
+

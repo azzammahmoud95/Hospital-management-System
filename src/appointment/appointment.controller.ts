@@ -26,7 +26,8 @@ export class AppointmentController {
   @Get('doctor-appointment')
   async getAppointmentsForLoggedInDoctor(@Headers('authorization') authorization: string) {
     const token = authorization?.replace('Bearer ', '');
-    return this.appointmentService.getDoctorAppointments(token);
+   const appointments = await this.appointmentService.getDoctorAppointments(token);
+    return { appointments }
   }
 
 @SetMetadata('roles', ['DOCTOR'])
