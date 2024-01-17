@@ -46,9 +46,15 @@ export class AppointmentService {
   });
 }
 
-  async getAllAppointments(): Promise<Appointment[] | any> {
-    return prisma.appointment.findMany();
-  }
+async getAllAppointments(page: number, limit: number): Promise<Appointment[]> {
+  const skip = (page - 1) * limit;
+
+  return prisma.appointment.findMany({
+    skip,
+    take: limit,
+  });
+
+}
   async approveReject( id: number,
     updatedStatus: { status: Status }
     ,) {

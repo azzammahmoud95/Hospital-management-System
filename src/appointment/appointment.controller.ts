@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, SetMetadata, UseGuards, Header, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, SetMetadata, UseGuards, Header, Headers, Query } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Appointment, Status } from '@prisma/client';
 import { RolesGuard } from 'src/guards/roles.guard';
+import { PaginationDto } from './dto/pagination.dto';
 // import { JwtService } from '@nestjs/jwt';
 
 @Controller('appointment')
@@ -17,11 +18,19 @@ export class AppointmentController {
     return { message: 'Appintment Made Successfully', result };
   }
 
+@Get('')
+  async getAllAppointments(@Query() paginationDto: PaginationDto): Promise<Appointment[] | any> {
+    const { page, limit } = paginationDto;
 
-  @Get('')
-  async getAllAppointments(): Promise<Appointment[] | any> {
-    return this.appointmentService.getAllAppointments();
+    const data = await this.appointmentService.getAllAppointments(page, limit);
+
+    return {
+      data,
+      page,
+      limit,
+    };
   }
+
 
   @Get('doctor-appointment')
   async getAppointmentsForLoggedInDoctor(@Headers('authorization') authorization: string) {
