@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers } from '@nestjs/common';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
@@ -26,11 +26,19 @@ export class PatientController {
       limit,
     };
   }
+// @SetMetadata('roles', ['PATIENT'])
+  // @UseGuards(RolesGuard)
+  @Get('patient-doctors')
+  async getDoctorsForPatient(@Headers('authorization') authorization: string): Promise<any> {
+    const token = authorization?.replace('Bearer ', '');
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.patientService.findOne(+id);
+    const doctors = await this.patientService.getDoctorsOfPatient(token);
+    return { doctors };
   }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.patientService.findOne(+id);
+  // }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {

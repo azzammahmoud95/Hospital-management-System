@@ -76,15 +76,7 @@ export class UserController {
   async deleteUser(@Param('id') id: string): Promise<PrismaUser> {
     return this.userService.deleteUser(Number(id));
   }
-  // @SetMetadata('roles', ['PATIENT'])
-  // @UseGuards(RolesGuard)
-  @Get('patient-doctors')
-  async getDoctorsForPatient(@Headers('authorization') authorization: string): Promise<any> {
-    const token = authorization?.replace('Bearer ', '');
-
-    const doctors = await this.userService.getDoctorsOfPatient(token);
-    return { doctors };
-  }
+  
 
   // @SetMetadata('roles', ['PATIENT'])
   

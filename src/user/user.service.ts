@@ -195,37 +195,7 @@ if (existingUser.role === 'PATIENT') {
   }
 
 
-  async getDoctorsOfPatient(token: string){
-    const decodedToken = this.jwtService.decode(token);
-
   
-    if (!decodedToken.patientId) {
-      throw new UnauthorizedException(
-        'Invalid or missing patient information in the token.',
-      );
-    }
-    
-    // Use Prisma's relation navigation to get doctors for the patient
-    const doctors = await prisma.patient.findUnique({where:{id:decodedToken.patientId}}).doctors({
-      include: {
-        doctor: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-               
-              },
-            },
-          },
-        },
-      },
-    });
-// Assuming you named the relation "doctors"
-    return doctors
-  }
 
 
 
