@@ -71,8 +71,13 @@ async finishAppointment(
     return this.appointmentService.update(+id, updateAppointmentDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.appointmentService.remove(+id);
+  @SetMetadata('roles', ['PATIENT'])
+  @Delete('/cancel/:id')
+  @UseGuards(RolesGuard)
+
+  cancelAppointment(@Param('id') id: string,@Headers('authorization') authorization: string) {
+    const token = authorization?.replace('Bearer ', '');
+
+    return this.appointmentService.cancelAppointment(Number(id),token);
   }
 }

@@ -159,9 +159,7 @@ export class AppointmentService {
     return `This action updates a #${id} appointment`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} appointment`;
-  }
+ 
   async getDoctorAppointments(token: string): Promise<Appointment[]> {
     // const secretKey = this.configservice.get<string>('SECRETKEY');
 
@@ -191,5 +189,27 @@ export class AppointmentService {
         },
       },
     });
+  }
+
+  async cancelAppointment(id: number,token:string) {
+    const decodedToken = this.jwtService.decode(token);
+
+  
+    if (!decodedToken.patientId) {
+      throw new UnauthorizedException(
+        'Invalid or missing patient information in the token.',
+      );
+    }
+    const appointment = await prisma.appointment.findUnique({where:{id},select:{patientId:true}});
+    if(!appointment){
+      throw new NotFoundException('Appointment not found')
+    }
+    const patientIdFromToken = decodedToken.patientId;
+    const patientIdFromTable = appointment.patientId
+    if(patientIdFromToken !== patientIdFromTable){
+      throw new UnauthorizedException('You are not authorized to perform this action!')
+    }
+    const deletedAppointment = await prisma.appointment.delete({where:{id}});
+    return {message:"Appointment Deleted Successfully",deletedAppointment}
   }
 }
