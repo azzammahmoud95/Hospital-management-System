@@ -195,15 +195,18 @@ if (existingUser.role === 'PATIENT') {
   }
 
 
-  async getDoctorsOfPatient(patiendId: number){
-    const patient  = await prisma.patient.findUnique({where: { id: patiendId}});
+  async getDoctorsOfPatient(token: string){
+    const decodedToken = this.jwtService.decode(token);
 
-    if(!patient){
-      throw new NotFoundException('Patient not found');
+  
+    if (!decodedToken.patientId) {
+      throw new UnauthorizedException(
+        'Invalid or missing patient information in the token.',
+      );
     }
-
+    
     // Use Prisma's relation navigation to get doctors for the patient
-    const doctors = await prisma.patient.findUnique({where:{id:patiendId}}).doctors({
+    const doctors = await prisma.patient.findUnique({where:{id:decodedToken.patientId}}).doctors({
       include: {
         doctor: {
           include: {
@@ -213,8 +216,7 @@ if (existingUser.role === 'PATIENT') {
                 name: true,
                 email: true,
                 role: true,
-                createdAt: true,
-                updatedAt: true,
+               
               },
             },
           },

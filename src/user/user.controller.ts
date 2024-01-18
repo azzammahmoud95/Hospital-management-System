@@ -8,6 +8,7 @@ import {
   Param,
   Body,
   UseGuards,
+  Headers,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Appointment, User as PrismaUser } from '@prisma/client';
@@ -27,7 +28,7 @@ export class UserController {
   }
 
   @SetMetadata('roles', ['ADMIN',])
-  @Get(':id')
+  @Get('/user/:id')
   @UseGuards(RolesGuard)
   async getUserById(@Param('id') id: string): Promise<PrismaUser | any> {
     return this.userService.getUserById(Number(id));
@@ -75,11 +76,13 @@ export class UserController {
   async deleteUser(@Param('id') id: string): Promise<PrismaUser> {
     return this.userService.deleteUser(Number(id));
   }
-  @SetMetadata('roles', ['PATIENT'])
-  @UseGuards(RolesGuard)
-  @Get('patient-doctors/:patientId')
-  async getDoctorsForPatient(@Param('patientId') patientId: string): Promise<any> {
-    const doctors = await this.userService.getDoctorsOfPatient(Number(patientId));
+  // @SetMetadata('roles', ['PATIENT'])
+  // @UseGuards(RolesGuard)
+  @Get('patient-doctors')
+  async getDoctorsForPatient(@Headers('authorization') authorization: string): Promise<any> {
+    const token = authorization?.replace('Bearer ', '');
+
+    const doctors = await this.userService.getDoctorsOfPatient(token);
     return { doctors };
   }
 
