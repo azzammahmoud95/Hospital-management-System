@@ -134,7 +134,6 @@ export class UserService {
     if (isPasswordValid) {
       // Generate and return JWT token here
       const secretKey = this.configservice.get<string>('SECRETKEY');
-
       // Omit the password from the user object
       const userWithoutPassword = { ...existingUser, password: undefined };
 

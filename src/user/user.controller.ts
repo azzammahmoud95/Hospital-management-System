@@ -50,7 +50,7 @@ export class UserController {
     return this.userService.loginUser(email, password);
   }
 
-  // @SetMetadata('roles', ['ADMIN'])
+  @SetMetadata('roles', ['ADMIN'])
   @Post('assign')
   @UseGuards(RolesGuard)
   async assignPatientDoctor(@Body() data: { patientId: number; doctorId: number }): Promise<any> {
@@ -75,7 +75,8 @@ export class UserController {
   async deleteUser(@Param('id') id: string): Promise<PrismaUser> {
     return this.userService.deleteUser(Number(id));
   }
-
+  @SetMetadata('roles', ['PATIENT'])
+  @UseGuards(RolesGuard)
   @Get('patient-doctors/:patientId')
   async getDoctorsForPatient(@Param('patientId') patientId: string): Promise<any> {
     const doctors = await this.userService.getDoctorsOfPatient(Number(patientId));

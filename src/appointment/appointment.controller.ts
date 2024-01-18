@@ -5,6 +5,8 @@ import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Appointment, Status } from '@prisma/client';
 import { RolesGuard } from 'src/guards/roles.guard';
 import { PaginationDto } from './dto/pagination.dto';
+import { ApproveRejectDto } from './dto/approve-reject.dto';
+import { FinishDto } from './dto/finish-appointment.dto';
 // import { JwtService } from '@nestjs/jwt';
 
 @Controller('appointment')
@@ -31,7 +33,8 @@ export class AppointmentController {
     };
   }
 
-
+  @SetMetadata('roles', ['DOCTOR'])
+  @UseGuards(RolesGuard)
   @Get('doctor-appointment')
   async getAppointmentsForLoggedInDoctor(@Headers('authorization') authorization: string) {
     const token = authorization?.replace('Bearer ', '');
@@ -44,19 +47,23 @@ export class AppointmentController {
 @UseGuards(RolesGuard)
 async approveReject(
   @Param('id') id: string,
-  @Body() approveReject: { status: Status } // Make 'status' required
+  @Headers('authorization') authorization: string,
+  @Body() approveReject: ApproveRejectDto // Make 'status' required
 ): Promise<Appointment | any> {
-  // const decode  = this.jwtUtilService()
-  return this.appointmentService.approveReject(Number(id), approveReject);
+  const token = authorization?.replace('Bearer ', '');
+  return this.appointmentService.approveReject(Number(id), approveReject,token);
 }
-@SetMetadata('roles', ['DOCTOR'])
+
+@SetMetadata('roles', ['PATIENT'])
 @Patch('/done/:id')
 @UseGuards(RolesGuard)
 async finishAppointment(
   @Param('id') id: string,
-  @Body() approveReject: { status: Status } // Make 'status' required
+  @Headers('authorization') authorization: string,
+  @Body() approveReject: FinishDto
 ): Promise<Appointment | any> {
-  return this.appointmentService.finishAppointment(Number(id), approveReject);
+  const token = authorization?.replace('Bearer ', '');
+  return this.appointmentService.finishAppointment(Number(id), approveReject,token);
 }
 
   @Patch(':id')
