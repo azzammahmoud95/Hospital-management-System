@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Headers, UseGuards, SetMetadata } from '@nestjs/common';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { Patient } from '@prisma/client';
+import { RolesGuard } from 'src/guards/roles.guard';
 
 @Controller('patient')
 export class PatientController {
@@ -26,8 +27,8 @@ export class PatientController {
       limit,
     };
   }
-// @SetMetadata('roles', ['PATIENT'])
-  // @UseGuards(RolesGuard)
+@SetMetadata('roles', ['PATIENT'])
+  @UseGuards(RolesGuard)
   @Get('patient-doctors')
   async getDoctorsForPatient(@Headers('authorization') authorization: string): Promise<any> {
     const token = authorization?.replace('Bearer ', '');

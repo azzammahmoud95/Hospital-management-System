@@ -82,4 +82,6 @@ model Appointment {
   status    Status   @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([doctorId, dateTime])
 }
